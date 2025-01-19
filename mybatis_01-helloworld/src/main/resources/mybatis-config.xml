@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--
+        MyBatis 核心配置文件的標籤必須要按照指定的順序配置: 
+        "(properties?,settings?,typeAliases?,typeHandlers?,
+        objectFactory?,objectWrapperFactory?,reflectorFactory?,
+        plugins?,environments?,databaseIdProvider?,mappers?)"
+
+    -->
+    <!-- 引入 properties 文件 此後可以在當前文件中使用 ${key} 方式訪問 value -->
+    <properties resource="jdbc.properties"/>
+
+    <!--
+        typeAliases: 設定類型別名 為某個具體的類型設定一個別名
+        在 MyBatis 的範圍中就可以使用別名表示一個具體的類型
+    -->
+    <typeAliases><!-- 標籤要按照配置順續放 -->
+        <!--
+            type: 設定需要取別名的類型
+            alias: 設定某個類型的別名
+        -->
+        <!-- <typeAlias type="com.atsimoncc.mybatis.pojo.User" alias="abc"></typeAlias><typeAlias type="com.atsimoncc.mybatis.pojo.User" alias="abc"></typeAlias> -->
+        <!-- 若不設定alias 當前類型會有預設的別名 為類名且不分大小寫 -->
+        <!-- <typeAlias type="com.atsimoncc.mybatis.pojo.User"></typeAlias> -->
+        <!-- 透過套件設定別名 指定套件下所有的類型會全部都有預設的別名 為類名且不分大小寫 -->
+        <package name="com.atsimoncc.mybatis.pojo"/>
+    </typeAliases>
+    <!--
+        environments: 配置連接資料庫的環境
+        屬性:
+        default: 設定預設使用的環境 id
+    -->
+    <environments default="development"><!-- 預設使用開發環境的 id -->
+        <!--
+            environment: 設定一個具體的連接資料庫的環境
+            屬性:
+            id: 設定環境的唯一標示 不能重複
+        -->
+        <environment id="development"><!-- 表示開發環境 -->
+            <!--
+                transactionManager: 設定交易管理器
+                屬性:
+                type: 設定交易管理的方式
+                type="JDBC | MANAGED" 這兩個值是 MyBatis 中提前定義好的
+                JDBC: 表示使用 JDBC 中原生的交易管理方式 原生表示自動提交可以手動開啟或關閉 可以手動提交或者回滾
+                MANAGED: 被管理的 例如 Spring Mybatis 實現功能的交易管理交給 Spring 管理
+            -->
+            <transactionManager type="JDBC"/>
+            <!-- 數據源的作用是幫助管理資料庫連接的 -->
+            <!--
+                dataSource: 設定資料源
+                屬性:
+                type: 設定資料源的訊息
+                type="POOLED | UNPOOLED | JNDI"
+                POOLED: 表示使用資料庫連接池
+                UNPOOLED: 表示不使用資料庫連接池 每次重新創建連接
+                JNDI: 表示使用上下文中的資料源
+            -->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+        <environment id="test"><!-- 表示測試環境 -->
+            <transactionManager type="JDBC"/>
+            <!-- 數據源的作用是幫助管理資料庫連接的 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC"/>
+                <property name="username" value=""/>
+                <property name="password" value=""/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!-- 引入 Mybatis 的映射文件(sql 語法在映射文件中)-->
+    <mappers>
+        <!-- <mapper resource="mappers/UserMapper.xml"/> -->
+        <!--
+            以套件的方式引入映射文件 必須滿足兩條件:
+            1. mapper 介面和映射文件所在的套件必須一致(可以在 java 與 resources 分別建立目錄 因為加載後都是在同一個目錄(類路徑)下)
+            2. mapper 介面的名字和映射文件的名字必須一致
+        -->
+        <package name="com.atsimoncc.mybatis.mapper"/>
+    </mappers>
+</configuration>

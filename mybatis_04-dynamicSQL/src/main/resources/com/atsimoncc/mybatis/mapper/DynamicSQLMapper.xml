@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 要與 Mapper 介面的全類名一致-->
+<mapper namespace="com.atsimoncc.mybatis.mapper.DynamicSQLMapper">
+    <!--
+        動態 SQL:
+        1. if: 透過 test 屬性中的表達式判斷標籤中的內容是否有效(是否會拼接到 sql 中)
+        2. were:
+            a. 若 where 標籤中有條件成立會自動生成 where 關鍵字
+            b. 會自動將 where 標籤中內容"前"多餘的 and 去掉 但是內容後多餘的 and 無法去掉
+            c. 若 where 標籤中無任一條件成立則 where 標籤無功能 不會有 where 關鍵字
+        3. trim:
+            a. prefix, suffix: 在標籤中內容前面或後面添加指定內容
+            b. prefixOverrides, suffixOverrides: 在標籤中內容前面或後面去掉指定內容
+        4. choose(父標籤), when(子標籤, 至少一個, 類似 if 和 else if), otherwise(子標籤, 最多一個, 類似 else)
+            相當於 Java 中的 if...else if...else
+            when 至少設置一個 otherwise 最多設置一個
+        5. foreach
+            collection: 設置要循環的陣列或集合
+            item: 用一個字串表示陣列或集合中的每一個資料
+            separator: 設置每次循環的資料之間的分隔符
+            open: 循環的所有內容以什麼為開始
+            close: 循環的所有內容以什麼為結束
+        6. sql片段: 可以記錄一段 sql 在需要用的地方使用 include 標籤進行引用
+                <sql id="empColumns">
+                    emp_id, emp_name, age, gender, dept_id
+                </sql>
+                <include refid="empColumns"></include>
+    -->
+    <sql id="empColumns">
+        emp_id, emp_name, age, gender, dept_id
+    </sql>
+
+    <!-- List<Emp> getEmpByCondition(Emp emp); -->
+    <select id="getEmpByCondition" resultType="Emp">
+        <!-- 第三種方法使用 trim 標籤 -->
+        select <include refid="empColumns"></include> from t_emp
+        <trim prefix="where" suffixOverrides="and">
+            <if test="empName != null and empName != ''">
+                emp_name = #{empName} and
+            </if>
+            <if test="age != null and age != ''">
+                age = #{age} and
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender}
+            </if>
+        </trim>
+    </select>
+    <select id="getEmpByConditionTwo" resultType="Emp">
+        <!-- 第二種方法使用 where 標籤動態生成關鍵字 -->
+        select * from t_emp
+        <where>
+            <if test="empName != null and empName != ''">
+                emp_name = #{empName}
+            </if>
+            <if test="age != null and age != ''">
+                and age = #{age}
+            </if>
+            <if test="gender != null and gender != ''">
+                and gender = #{gender}
+            </if>
+        </where>
+    </select>
+    <select id="getEmpByConditionOne" resultType="Emp">
+        <!-- 第一種方法加上恆成立條件 -->
+        select * from t_emp where 1 = 1
+        <if test="empName != null and empName != ''">
+            and emp_name = #{empName}
+        </if>
+        <if test="age != null and age != ''">
+            and age = #{age}
+        </if>
+        <if test="gender != null and gender != ''">
+            and gender = #{gender}
+        </if>
+    </select>
+
+    <!-- List<Emp> getEmpByChoose(Emp emp); -->
+    <select id="getEmpByChoose" resultType="Emp">
+        select * from t_emp
+        <where>
+            <choose>
+                <when test="empName != null and empName != ''">
+                    emp_name = #{empName}
+                </when>
+                 <when test="age != null and age != ''">
+                    age = #{age}
+                </when>
+                 <when test="gender != null and gender != ''">
+                    gender = #{gender}
+                </when>
+            </choose>
+        </where>
+    </select>
+    
+    <!-- void insertMoretEmp(@Param("emps") List<Emp> emps); -->
+    <insert id="insertMoretEmp">
+        insert into t_emp values
+        <!-- 沒有使用 @Param MyBatis 將 list 放在 map 中會以 list 為 key -->
+        <!-- <foreach collection="lsit" item="emp"></foreach> -->
+        <foreach collection="emps" item="emp" separator=",">
+            (null, #{emp.empName}, #{emp.age}, #{emp.gender}, null)
+        </foreach>
+    </insert>
+
+    <!-- void deletetMoretEmp(@Param("empIds") Integer[] empIds); -->
+    <delete id="deletetMoretEmp">
+        <!-- 第一種
+        delete from t_emp where emp_id in
+        (
+            <foreach collection="empIds" item="empId" separator=",">
+                #{empId}
+            </foreach>
+        )
+        -->
+
+        <!-- index 表示當前循環的索引 open 表示循環以什麼為開始 close 表示循環以什麼為結束 -->
+        <!-- 第二種
+        delete from t_emp where emp_id in
+        <foreach collection="empIds" item="empId" separator="," open="(" close=")">
+            #{empId}
+        </foreach>
+        -->
+        <!-- 第三種 -->
+        delete from t_emp where
+        <foreach collection="empIds" item="empId" separator="or">
+            emp_id = #{empId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 要與 Mapper 介面的全類名一致-->
+<mapper namespace="com.atsimoncc.mybatis.mapper.SelectMapper">
+
+    <!-- User getUserById(@Param("id") Integer id); -->
+    <select id="getUserById" resultType="User">
+        select * from t_user where id = #{id}
+    </select>
+
+    <!-- List<User> getAllUsers(); -->
+    <select id="getAllUsers" resultType="User">
+        select * from t_user
+    </select>
+
+    <!-- Integer getCount(); -->
+    <!--
+        MyBatis 中為 Java 中常用的類型設置了類型別名
+        Integer: Integer, int
+        int: _int, _integer
+        Map: map
+        String: string
+    -->
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from t_user
+    </select>
+
+    <!-- Map<String, Object> getUserByIdToMap(@Param("id") Integer id); -->
+    <select id="getUserByIdToMap" resultType="map">
+        select * from t_user where id = #{id}
+    </select>
+
+    <!-- Map<String, Object> getAllUsersToMap(); -->
+    <select id="getAllUsersToMap" resultType="map">
+        select * from t_user
+    </select>
+
+</mapper>

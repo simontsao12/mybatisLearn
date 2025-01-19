@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 要與 Mapper 介面的全類名一致 -->
+<mapper namespace="com.atsimoncc.mybatis.mapper.UserMapper">
+
+    <!--
+        mapper 介面和映射文件要保持兩個一致:
+        1. mapper 介面的全類名和映射文件的 namespace 一致
+        2. mapper 介面中的方法名要和映射文件中的 sql 的 id 一致
+    -->
+
+    <!-- int insertUser(); 方法名要與id一致 -->
+    <insert id="insertUser">
+        insert into t_user values(null, 'admin', '123456', 23, '男', '12345@cc.com')
+    </insert>
+    <!-- void updateUser(); -->
+    <update id="updateUser">
+        update t_user set username = 'root', password = '123' where id = 3
+    </update>
+    <!-- void deleteUser(); -->
+    <delete id="deleteUser">
+        delete from t_user where id = 3
+    </delete>
+    <!-- User getUserById(); 若欄位名稱與屬性名稱相同使用 resultType 即可, 不一樣要使用 resultMap -->
+    <!--
+        以下擇一使用
+        resultType: 設定結果類型 即查詢的資料要轉換為的 Java 類型
+        resultMap: 自定義映射 處理多對一或一對多的映射關係
+    -->
+    <select id="getUserById" resultType="com.atsimoncc.mybatis.pojo.User">
+        select * from t_user where id = 1
+    </select>
+    <!-- List<User> getAllUsers(); -->
+    <select id="getAllUsers" resultType="User">
+        select * from t_user
+    </select>
+</mapper>

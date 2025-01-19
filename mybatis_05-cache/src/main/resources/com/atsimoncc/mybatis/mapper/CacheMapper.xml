@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 要與 Mapper 介面的全類名一致 -->
+<mapper namespace="com.atsimoncc.mybatis.mapper.CacheMapper">
+
+    <!-- 使用二級緩存設定件之一 -->
+    <!-- 使用預設的二級緩存-->
+    <!-- <cache/> -->
+    <!-- 使用第三方的二級緩存 -->
+    <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+
+    <!-- Emp getEmpByEmpId(@Param("empId") Integer empId); -->
+    <select id="getEmpByEmpId" resultType="Emp">
+        select * from t_emp where emp_id = #{empId}
+    </select>
+
+    <!-- void insertEmp(Emp emp); -->
+    <insert id="insertEmp">
+        insert into t_emp values (null, #{empName}, #{age}, #{gender}, null)
+    </insert>
+
+</mapper>

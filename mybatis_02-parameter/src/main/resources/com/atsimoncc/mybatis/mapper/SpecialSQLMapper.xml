@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 要與 Mapper 介面的全類名一致-->
+<mapper namespace="com.atsimoncc.mybatis.mapper.SpecialSQLMapper">
+
+    <!-- List<User> getUserByLike(@Param("name") String name); -->
+    <select id="getUserByLike" resultType="User">
+        <!-- 三種解決方式 -->
+        <!-- select * from t_user where username like '%${name}%' -->
+        <!-- select * from t_user where username like concat('%', #{name}, '%') -->
+        select * from t_user where username like "%"#{name}"%"
+        <!-- 還有一種是只使用 #{} 但是傳入時在參數前後加上%% -->
+    </select>
+
+    <!-- void deleteMoreUser(@Param("ids") String ids); // ids: 9, 10 -->
+    <delete id="deleteMoreUser">
+        delete from t_user where id in(${ids})
+    </delete>
+
+    <!-- List<User> getUserList(@Param("tableName") String tableName); -->
+    <select id="getUserList" resultType="User">
+        select * from ${tableName}
+    </select>
+
+    <!-- void insertUser(User user); -->
+    <!-- 增刪改的返回值是固定的 即影響條數 所以用 keyProperty  其是將資料放在傳進來的 user 的屬性中 -->
+    <!--
+        useGeneratedKeys: 表示新增功能使用的主鍵
+        keyProperty: 將新增的資料的自增主鍵為實體類類型的參數的屬性賦值
+    -->
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user values (null, #{username}, #{password}, #{age}, #{gender}, #{email})
+    </insert>
+</mapper>
